@@ -1,4 +1,3 @@
-# +
 import CoolProp.CoolProp as cp
 import numpy as np
 from matplotlib import pyplot as plt
@@ -26,7 +25,7 @@ T_ini = T_ambient
 V_fcv = 0.35 #350litres par réservoir
 kp_valve = 0.035
 cascade = [[300e5,50,2.435], [300e5,50,2.435], [300e5,50,2.435], [300e5,50,2.435],
-           [450e5,50,1.758], [450e5,50,1.758], [450e5,50,1.758], [450e5,50,1.758]]
+           [450e5,50,1.758], [450e5,50,1.758], [450e5,50,1.758], [450e5,50,1.758]] #format [pression, masse, volume]
 time_array = np.array([])
 mdot_array = np.array([])
 pin_array = np.array([]) #pression in (à la sortie des tanks du cascade storage)
@@ -60,7 +59,7 @@ for reservoir in range(nb_reservoirs)  :
         p_aprr = p_inlet(t-fcv_track[reservoir][0], p_fcv_ini, aprr)
         p_fcv = cp.PropsSI('P', 'U', u_fcv, 'Dmass', rho_fcv, 'H2')
         h_tank = cp.PropsSI('H', 'P', p_tank, 'T', T_tank, 'H2' )
-        rho_m = cp.PropsSI('D', 'P', p_fcv, 'H', h_tank, 'H2') #insentalpic
+        rho_m = cp.PropsSI('D', 'P', p_fcv, 'H', h_tank, 'H2') #insentalpique
         T_i = - 30 + 273.15
         dm_dt = min(redvalve(p_aprr, p_fcv, T_i, kp_valve, rho_fcv), redvalve(p_tank, p_aprr, T_tank, kp_valve, rho_m))
         hin = cp.PropsSI('H', 'P', p_aprr, 'T', T_i, 'H2')
@@ -102,46 +101,43 @@ for reservoir in range(nb_reservoirs)  :
     cascade[stage] = [p_tank, m_tank, cascade[stage][2]]
 
 #fontions pour visualiser
-def p_in_plot():
+def p_in_plot(): #pression délivrée par le cascade storage system
     plt.plot(time_array/60, pin_array/1e5)
     plt.xlabel('Temps ($minutes$)')
     plt.ylabel('Pression IN ($Bar$)')
 
-def cooling_plot():
+def cooling_plot(): #demande en puissance de refroidissement
     plt.plot(time_array/60, cooling_array/1e3)
     plt.xlabel('Temps ($minutes$)')
     plt.ylabel('Puissance de refroidissement ($kiloWatts$)')
 
-def T_fcv_plot(reservoir):
+def T_fcv_plot(reservoir): #suivi de la température dans le réservoir du véhicule
     n = len( fcv_track[reservoir-1][2] )
     l_t=np.linspace( fcv_track[reservoir-1][0], fcv_track[reservoir][0], num = int(n) )
     plt.plot(l_t/60, fcv_track[reservoir-1][2][::-1]-273.15)
     plt.xlabel('Temps ($minutes$)')
     plt.ylabel('Température de $H_2$ dans le réservoir ($Celsius$)')
 
-def m_fcv_plot(reservoir):
+def m_fcv_plot(reservoir): #suivi de la masse de H2 dans le réservoir du véhicule
     n = len( fcv_track[reservoir-1][1] )
     l_t=np.linspace( fcv_track[reservoir-1][0], fcv_track[reservoir][0], num = int(n) )
     plt.plot(l_t, fcv_track[reservoir-1][1][::-1])
 
-def p_fcv_plot(reservoir):
+def p_fcv_plot(reservoir): #suivi de la pression de H2 dans le réservoir du véhicule
     n = len( fcv_track[reservoir-1][3] )
     l_t=np.linspace( fcv_track[reservoir-1][0], fcv_track[reservoir][0], num = int(n) )
     plt.plot(l_t, fcv_track[reservoir-1][3][::-1])
 
-def mdot_plot(reservoir):
+def mdot_plot(reservoir): #suivi du débit massique au cours du chargement d'un réservoir
     n = len( fcv_track[reservoir-1][4] )
     l_t=np.linspace( fcv_track[reservoir-1][0], fcv_track[reservoir][0], num = int(n) )
     plt.plot(l_t, fcv_track[reservoir-1][4][::-1])
 
-def p_tank_plot(tank):
+def p_tank_plot(tank): #suivi de la pression dans l'un des réservoir de stockage de la cascade
     plt.plot(cascade_track[tank-1][0][::-1])
 
-def m_tank_plot(tank):
+def m_tank_plot(tank): #idem pour la masse
     plt.plot(cascade_track[tank-1][1][::-1])
 
-def T_tank_plot(tank):
+def T_tank_plot(tank): #idem pour la température
     plt.plot(cascade_track[tank-1][2][::-1])
-# -
-
-
